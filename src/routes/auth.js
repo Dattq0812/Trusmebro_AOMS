@@ -3,11 +3,13 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { truyVan } = require('../db');
+const { validateBody, validateLogin } = require('../middleware/validate');
 
 const router = express.Router();
 
-router.post('/dang-nhap', async (req, res) => {
-    const { email, matKhau } = req.body;
+router.post('/dang-nhap', validateBody(validateLogin), async (req, res, next) => {
+    const email = req.body.email.trim().toLowerCase();
+    const { matKhau } = req.body;
     
     try {
         // Tìm user trong Database
@@ -16,7 +18,10 @@ router.post('/dang-nhap', async (req, res) => {
         
         // Kiểm tra mật khẩu (thông báo chung chung để tránh lộ email có tồn tại hay không)[cite: 1]
         if (!u || !(await bcrypt.compare(matKhau, u.mat_khau_hash))) {
-            return res.status(401).json({ loi: 'Email hoặc mật khẩu không đúng' });
+            return res.status(401).json({
+                thanhCong: false,
+                loi: 'Email hoặc mật khẩu không đúng',
+            });
         }
         
         // Tạo JWT Token có thời hạn 7 ngày[cite: 1]
@@ -27,7 +32,8 @@ router.post('/dang-nhap', async (req, res) => {
         );
         
         // Trả về token và thông tin cơ bản
-        res.json({ 
+        res.json({
+            thanhCong: true,
             token, 
             nguoiDung: { 
                 id: u.id, 
@@ -36,7 +42,7 @@ router.post('/dang-nhap', async (req, res) => {
             } 
         });
     } catch (error) {
-        res.status(500).json({ loi: 'Lỗi máy chủ', chiTiet: error.message });
+        next(error);
     }
 });
 
