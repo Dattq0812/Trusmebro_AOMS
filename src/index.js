@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+//API routes
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
 // API Kiểm tra sức khỏe hệ thống[cite: 1]
 app.get('/health', (req, res) => {
     res.status(200).json({ trangThai: 'OK', thoiGian: new Date() });
