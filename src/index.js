@@ -5,6 +5,8 @@ const rateLimit = require('express-rate-limit');
 const { port, allowedOrigins } = require('./config/env');
 const { pool, truyVan } = require('./db');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+const { xacThuc } = require('./middleware/auth');
+const { mapNguoiDung } = require('./utils/response');
 
 const app = express();
 
@@ -29,23 +31,35 @@ const loginLimiter = rateLimit({
 });
 
 const authRoutes = require('./routes/auth');
+const apartmentRoutes = require('./routes/apartments');
+const userRoutes = require('./routes/users');
 app.use('/api/auth/dang-nhap', loginLimiter);
 app.use('/api/auth', authRoutes);
+app.use('/api/can-ho', apartmentRoutes);
+app.use('/api/nguoi-dung', userRoutes);
+
+app.get('/api/me', xacThuc, async (req, res, next) => {
+    try {
+        const result = await truyVan(
+            `SELECT id, email, ho_ten, sdt, vai_tro
+             FROM nguoi_dung
+             WHERE id = $1`,
+            [req.nguoiDung.id],
+        );
+        if (result.rows.length === 0) {
+            return res.status(401).json({ thanhCong: false, loi: 'Tài khoản không còn tồn tại' });
+        }
+        res.json({ thanhCong: true, duLieu: mapNguoiDung(result.rows[0]) });
+    } catch (error) {
+        next(error);
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).json({
         thanhCong: true,
         duLieu: { trangThai: 'OK', thoiGian: new Date().toISOString() },
     });
-});
-
-app.get('/api/can-ho', async (req, res, next) => {
-    try {
-        const result = await truyVan('SELECT * FROM can_ho');
-        res.status(200).json({ thanhCong: true, duLieu: result.rows });
-    } catch (error) {
-        next(error);
-    }
 });
 
 app.use(notFoundHandler);

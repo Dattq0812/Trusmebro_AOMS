@@ -44,7 +44,7 @@ Nền tảng backend đã hoàn thành:
 - Timeout PostgreSQL và graceful shutdown.
 - Test tích hợp nền tảng.
 
-Các API nghiệp vụ còn lại sẽ được triển khai theo [backend/IMPLEMENTATION_PLAN.md](./backend/IMPLEMENTATION_PLAN.md). Client không nên tự suy đoán response cho các endpoint chưa có route thực tế.
+Các API nghiệp vụ còn lại sẽ được triển khai theo [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md). Client không nên tự suy đoán response cho các endpoint chưa có route thực tế.
 
 ## Yêu cầu môi trường
 
@@ -371,4 +371,4 @@ Trước khi mở rộng client, cần đảm bảo backend có test cho:
 - Nghiệp vụ thay đổi nhiều bảng phải dùng PostgreSQL transaction.
 - Không trả `mat_khau_hash`, SQL, stack trace hoặc secret cho client.
 - Mỗi API mới cần validation, status code, test và cập nhật tài liệu.
-- Tách commit theo phase; tham khảo [backend/IMPLEMENTATION_PLAN.md](./backend/IMPLEMENTATION_PLAN.md).
+- Tách commit theo phase; tham khảo [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md).

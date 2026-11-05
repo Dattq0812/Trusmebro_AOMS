@@ -5,7 +5,7 @@ CREATE TABLE nguoi_dung (
     mat_khau_hash VARCHAR(255) NOT NULL,
     ho_ten VARCHAR(100) NOT NULL,
     sdt VARCHAR(20),
-    vai_tro VARCHAR(20) NOT NULL -- 'QUAN_LY' hoặc 'CU_DAN'
+    vai_tro VARCHAR(20) NOT NULL CHECK (vai_tro IN ('QUAN_LY', 'CU_DAN'))
 );
 
 -- 2. Bảng Tòa nhà
@@ -18,9 +18,9 @@ CREATE TABLE toa_nha (
 -- 3. Bảng Căn hộ (chứa thông tin diện tích để tính phí theo m2)
 CREATE TABLE can_ho (
     id SERIAL PRIMARY KEY,
-    toa_nha_id INT REFERENCES toa_nha(id) ON DELETE CASCADE,
+    toa_nha_id INT NOT NULL REFERENCES toa_nha(id) ON DELETE CASCADE,
     ma_can_ho VARCHAR(20) NOT NULL,
-    dien_tich NUMERIC(10, 2) NOT NULL,
+    dien_tich NUMERIC(10, 2) NOT NULL CHECK (dien_tich > 0),
     UNIQUE(toa_nha_id, ma_can_ho)
 );
 
@@ -29,9 +29,10 @@ CREATE TABLE cu_dan (
     id SERIAL PRIMARY KEY,
     nguoi_dung_id INT REFERENCES nguoi_dung(id) ON DELETE CASCADE,
     can_ho_id INT REFERENCES can_ho(id) ON DELETE CASCADE,
-    vai_tro_cu_dan VARCHAR(50) NOT NULL, -- 'CHU_SO_HUU', 'NGUOI_THUE'
+    vai_tro_cu_dan VARCHAR(50) NOT NULL CHECK (vai_tro_cu_dan IN ('CHU_SO_HUU', 'NGUOI_THUE')),
     bat_dau DATE NOT NULL,
-    ket_thuc DATE
+    ket_thuc DATE,
+    CHECK (ket_thuc IS NULL OR ket_thuc >= bat_dau)
 );
 
 -- 5. Bảng Khoản phí (Cấu hình biểu giá)
@@ -63,3 +64,10 @@ CREATE TABLE chi_tiet_hoa_don (
     don_gia NUMERIC(15, 2) NOT NULL,
     thanh_tien NUMERIC(15, 2) NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_cu_dan_quan_he_dang_hieu_luc
+    ON cu_dan (nguoi_dung_id, can_ho_id)
+    WHERE ket_thuc IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_cu_dan_nguoi_dung_hieu_luc
+    ON cu_dan (nguoi_dung_id, can_ho_id, bat_dau, ket_thuc);
