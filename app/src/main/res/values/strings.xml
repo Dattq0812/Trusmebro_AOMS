@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AOMS Admin</string>
+
+    <string name="email">Email</string>
+    <string name="mat_khau">Mật khẩu</string>
+    <string name="dang_nhap">Đăng nhập</string>
+    <string name="dang_xuat">Đăng xuất</string>
+    <string name="tai_lai">Tải lại</string>
+
+    <string name="tab_can_ho">Căn hộ</string>
+    <string name="tab_hoa_don">Chốt hóa đơn</string>
+    <string name="tab_bao_cao">Báo cáo</string>
+
+    <string name="chua_co_can_ho">Chưa có căn hộ nào</string>
+    <string name="thang">Tháng</string>
+    <string name="han_nop">Hạn nộp</string>
+    <string name="chot_hoa_don">Chốt hóa đơn</string>
+    <string name="huy">Hủy</string>
+    <string name="du_lieu_mau">Dữ liệu mẫu: backend chưa có API phí/hóa đơn</string>
+    <string name="du_lieu_mau_bao_cao">Dữ liệu mẫu: backend chưa có API báo cáo</string>
+    <string name="doanh_thu_6_thang">Doanh thu 6 tháng (triệu đồng)</string>
+    <string name="cong_no">Tình trạng thu phí tháng này</string>
+</resources>

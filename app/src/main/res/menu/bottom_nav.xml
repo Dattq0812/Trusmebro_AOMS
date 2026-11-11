@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_can_ho"
+        android:icon="@drawable/ic_apartment"
+        android:title="@string/tab_can_ho" />
+    <item
+        android:id="@+id/nav_hoa_don"
+        android:icon="@drawable/ic_receipt"
+        android:title="@string/tab_hoa_don" />
+    <item
+        android:id="@+id/nav_bao_cao"
+        android:icon="@drawable/ic_chart"
+        android:title="@string/tab_bao_cao" />
+</menu>
