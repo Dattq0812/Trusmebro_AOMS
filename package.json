@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js",
+    "db:setup": "npm run migrate && npm run seed",
     "test": "node --test"
   },
   "keywords": [],

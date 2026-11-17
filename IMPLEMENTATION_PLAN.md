@@ -11,8 +11,8 @@
 - [x] Middleware xác thực JWT.
 - [x] Middleware phân quyền theo vai trò.
 - [x] API kiểm tra sức khỏe `/health`.
-- [ ] Hoàn thiện các API nghiệp vụ theo use case.
-- [ ] Bổ sung migration, seed data, validation và test.
+- [ ] Hoàn thiện toàn bộ API nghiệp vụ theo use case.
+- [x] Bổ sung migration, seed data, validation và test nền tảng/Phase 3.
 
 ## 2. Nguyên tắc triển khai
 
@@ -111,6 +111,8 @@ DELETE /api/can-ho/:id/cu-dan/:nguoiDungId
 
 ## 6. Phase 3 - Phí, hóa đơn và công nợ
 
+**Trạng thái:** Đã triển khai API, migration và luồng duyệt thanh toán cơ bản.
+
 **Use case:** UC-08, UC-09, UC-10, UC-11, UC-12.
 
 ### Bổ sung database
@@ -160,11 +162,11 @@ GET   /api/cong-no
 
 ### Tiêu chí hoàn thành
 
-- Phát hành hóa đơn không tạo bản ghi trùng cho cùng căn hộ và tháng.
-- Tổng hóa đơn bằng tổng các dòng chi tiết.
-- Duyệt thanh toán cập nhật hóa đơn và biên lai trong cùng transaction.
-- Cư dân chỉ xem hóa đơn của căn hộ mình.
-- Admin xem được danh sách công nợ và giao dịch cần duyệt.
+- [x] Phát hành hóa đơn không tạo bản ghi trùng cho cùng căn hộ và tháng.
+- [x] Tổng hóa đơn bằng tổng các dòng chi tiết.
+- [x] Duyệt thanh toán cập nhật hóa đơn và biên lai trong cùng transaction.
+- [x] Cư dân chỉ xem hóa đơn của căn hộ mình.
+- [x] Admin xem được danh sách công nợ và giao dịch cần duyệt.
 
 ## 7. Phase 4 - Quản lý sự cố
 
@@ -286,11 +288,11 @@ GET   /api/bao-cao/dich-vu
 
 ## 10. Migration và dữ liệu mẫu
 
-- [ ] Đổi `schema.sql` thành migration có version.
-- [ ] Tạo migration riêng cho từng nhóm bảng nghiệp vụ.
-- [ ] Thêm seed Admin, cư dân, tòa nhà, căn hộ và khoản phí mẫu.
-- [ ] Không lưu mật khẩu dạng plain text trong seed.
-- [ ] Thêm script chạy migration/seed có thể lặp lại an toàn.
+- [x] Bổ sung migration có version; `schema.sql` được giữ để tương thích.
+- [x] Tạo migration riêng cho schema nền, auth/căn hộ và billing.
+- [x] Thêm seed Admin, cư dân, tòa nhà, căn hộ và khoản phí mẫu.
+- [x] Không lưu mật khẩu dạng plain text trong seed.
+- [x] Thêm script chạy migration/seed có thể lặp lại an toàn.
 - [ ] Ghi rõ cách reset database trong tài liệu phát triển.
 
 ## 11. Kiểm thử bắt buộc
@@ -305,9 +307,10 @@ GET   /api/bao-cao/dich-vu
 
 ### Integration test
 
-- [ ] Đăng nhập thành công/thất bại.
-- [ ] Truy cập API không có token.
-- [ ] Truy cập sai vai trò.
+- [x] Truy cập API không có token.
+- [x] Truy cập sai vai trò.
+- [x] Validation API billing trước khi truy cập database.
+- [ ] Đăng nhập thành công/thất bại đầy đủ.
 - [ ] Cư dân truy cập dữ liệu căn hộ khác.
 - [ ] Phát hành hóa đơn bị trùng.
 - [ ] Duyệt thanh toán cập nhật đúng nhiều bảng.
@@ -319,15 +322,15 @@ GET   /api/bao-cao/dich-vu
 - [ ] `GET /health` trả trạng thái server.
 - [ ] Health check báo lỗi database khi database không truy cập được.
 - [ ] Không có secret trong log.
-- [ ] `npm test` chạy được từ thư mục `backend`.
+- [x] `npm test` chạy được từ thư mục `backend` (9 test pass).
 - [ ] Có collection Postman hoặc tài liệu Swagger cho toàn bộ API.
 
 ## 12. Thứ tự thực hiện đề xuất
 
 1. Hoàn thành Phase 1: nền tảng, lỗi và validation.
 2. Hoàn thành Phase 2: xác thực, người dùng và căn hộ.
-3. Hoàn thành migration/seed tối thiểu.
-4. Hoàn thành Phase 3: hóa đơn, thanh toán và công nợ.
+3. Hoàn thành migration/seed tối thiểu. [x]
+4. Hoàn thành Phase 3: hóa đơn, thanh toán và công nợ. [x]
 5. Hoàn thành Phase 4: sự cố.
 6. Hoàn thành Phase 5: tiện ích và dịch vụ.
 7. Hoàn thành Phase 6: thông báo và báo cáo.

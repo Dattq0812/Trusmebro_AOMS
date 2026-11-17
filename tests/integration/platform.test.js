@@ -84,3 +84,48 @@ test('admin apartment assignment validates route and body before database access
     assert.equal(response.status, 400);
     assert.equal(body.loi, 'ID căn hộ không hợp lệ');
 });
+
+test('billing invoice endpoint requires authentication', async () => {
+    const response = await request('/api/hoa-don');
+    const body = await response.json();
+
+    assert.equal(response.status, 401);
+    assert.equal(body.thanhCong, false);
+});
+
+test('resident cannot configure a fee', async () => {
+    const token = jwt.sign({ id: 2, vaiTro: 'CU_DAN' }, process.env.JWT_SECRET);
+    const response = await request('/api/khoan-phi', {
+        method: 'POST',
+        headers: {
+            authorization: `Bearer ${token}`,
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            toaNhaId: 1,
+            ten: 'Phí không hợp lệ',
+            cachTinh: 'CO_DINH',
+            donGia: 100,
+        }),
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 403);
+    assert.equal(body.thanhCong, false);
+});
+
+test('admin billing request validates month before database access', async () => {
+    const token = jwt.sign({ id: 1, vaiTro: 'QUAN_LY' }, process.env.JWT_SECRET);
+    const response = await request('/api/hoa-don/phat-hanh', {
+        method: 'POST',
+        headers: {
+            authorization: `Bearer ${token}`,
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({ thang: '2026-13', hanNop: '2026-11-30' }),
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(body.loi, 'Dữ liệu không hợp lệ');
+});

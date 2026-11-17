@@ -33,10 +33,12 @@ const loginLimiter = rateLimit({
 const authRoutes = require('./routes/auth');
 const apartmentRoutes = require('./routes/apartments');
 const userRoutes = require('./routes/users');
+const billingRoutes = require('./routes/billing');
 app.use('/api/auth/dang-nhap', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/can-ho', apartmentRoutes);
 app.use('/api/nguoi-dung', userRoutes);
+app.use('/api', billingRoutes);
 
 app.get('/api/me', xacThuc, async (req, res, next) => {
     try {

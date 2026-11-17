@@ -1,0 +1,122 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Ban Quản Lý (Admin)" as Admin
+actor "Cư Dân (Client)" as Resident
+actor "Nhân viên kỹ thuật" as Technician
+actor "Cổng thanh toán" as PaymentGateway
+actor "Dịch vụ thông báo" as NotificationService
+
+rectangle "Hệ Thống Quản Lý Vận Hành Chung Cư" {
+
+  package "Xác Thực & Quản Lý Căn Hộ" {
+    usecase "UC-01: Đăng nhập" as UC01
+    usecase "UC-05: Gắn cư dân vào căn hộ" as UC05
+    usecase "UC-06: Xem thông tin căn hộ" as UC06
+  }
+
+  package "Quản Lý Phí & Hóa Đơn" {
+    usecase "UC-08: Phát hành hóa đơn hàng tháng" as UC08
+    usecase "UC-09: Quản lý công nợ" as UC09
+    usecase "UC-10: Xem chi tiết hóa đơn" as UC10
+    usecase "UC-11: Thanh toán & Tải biên lai" as UC11
+    usecase "UC-12: Duyệt thanh toán" as UC12
+    usecase "Tính phí theo diện tích" as CalculateFee
+    usecase "Ghi nhận giao dịch thanh toán" as RecordPayment
+  }
+
+  package "Quản Lý Sự Cố" {
+    usecase "UC-14: Gửi báo cáo sự cố" as UC14
+    usecase "UC-15: Phân công xử lý sự cố" as UC15
+    usecase "UC-16: Cập nhật tiến độ xử lý" as UC16
+    usecase "UC-17: Theo dõi tiến độ sự cố" as UC17
+    usecase "UC-18: Đánh giá chất lượng xử lý" as UC18
+  }
+
+  package "Tiện Ích & Dịch Vụ" {
+    usecase "UC-21: Đặt khung giờ tiện ích" as UC21
+    usecase "UC-22: Đăng ký thang máy" as UC22
+    usecase "UC-23: Đăng ký khách thăm" as UC23
+    usecase "UC-24: Duyệt đăng ký dịch vụ" as UC24
+    usecase "Kiểm tra sức chứa" as CheckCapacity
+  }
+
+  package "Thông Báo & Báo Cáo" {
+    usecase "UC-25: Đăng thông báo chung" as UC25
+    usecase "UC-26: Xem thông báo" as UC26
+    usecase "UC-27: Xem báo cáo thống kê" as UC27
+    usecase "Gửi thông báo trạng thái" as SendNotification
+  }
+}
+
+' Actor associations
+Admin --> UC01
+Admin --> UC05
+Admin --> UC06
+Admin --> UC08
+Admin --> UC09
+Admin --> UC12
+Admin --> UC15
+Admin --> UC24
+Admin --> UC25
+Admin --> UC27
+
+Resident --> UC01
+Resident --> UC06
+Resident --> UC10
+Resident --> UC11
+Resident --> UC14
+Resident --> UC17
+Resident --> UC18
+Resident --> UC21
+Resident --> UC22
+Resident --> UC23
+Resident --> UC26
+
+Technician --> UC16
+PaymentGateway --> UC11
+NotificationService --> SendNotification
+
+' Mandatory internal behavior
+UC08 ..> CalculateFee : <<include>>
+UC11 ..> RecordPayment : <<include>>
+UC21 ..> CheckCapacity : <<include>>
+UC08 ..> SendNotification : <<include>>
+UC12 ..> SendNotification : <<include>>
+UC15 ..> SendNotification : <<include>>
+UC16 ..> SendNotification : <<include>>
+UC24 ..> SendNotification : <<include>>
+UC25 ..> SendNotification : <<include>>
+
+' Business conditions and workflow
+note right of UC05
+  Điều kiện trước: Admin đã đăng nhập
+end note
+
+note right of UC08
+  Chạy theo kỳ hàng tháng.
+  Hệ thống tự động tính phí theo diện tích.
+end note
+
+note right of UC11
+  Giao dịch được ghi nhận ở trạng thái
+  chờ duyệt sau khi cổng thanh toán phản hồi.
+end note
+
+note right of UC12
+  Admin duyệt giao dịch hợp lệ.
+  Sau khi duyệt, biên lai được phát hành.
+end note
+
+note right of UC14
+  Tạo sự cố ở trạng thái mới.
+  Admin tiếp nhận và phân công xử lý.
+end note
+
+note right of UC18
+  Chỉ thực hiện sau khi sự cố đã hoàn tất.
+end note
+
+@enduml

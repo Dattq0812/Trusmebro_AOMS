@@ -5,7 +5,7 @@ Hệ thống quản lý vận hành chung cư, gồm:
 - **Backend:** Node.js, Express, PostgreSQL và JWT.
 - **Android Admin:** ứng dụng cho ban quản lý.
 - **Flutter Client:** ứng dụng cho cư dân.
-- **Database:** PostgreSQL, dùng `schema.sql` làm schema khởi đầu.
+- **Database:** PostgreSQL, quản lý bằng migration có version và seed phát triển.
 
 Các use case chính được mô tả trong [usecase.puml](./usecase.puml), gồm xác thực, quản lý căn hộ, phí và hóa đơn, sự cố, tiện ích, thông báo và báo cáo.
 
@@ -23,6 +23,7 @@ AOMS/
 │   ├── database/
 │   ├── tests/
 │   ├── schema.sql
+│   ├── scripts/
 │   ├── .env.example
 │   └── package.json
 ├── Trusmebro_AOMS/       # Flutter Client
@@ -32,7 +33,7 @@ AOMS/
 
 ## Trạng thái hiện tại
 
-Nền tảng backend đã hoàn thành:
+Backend đã hoàn thành:
 
 - Kiểm tra `DATABASE_URL`, `JWT_SECRET` và `PORT`.
 - Đăng nhập bằng email/mật khẩu và phát hành JWT.
@@ -42,9 +43,14 @@ Nền tảng backend đã hoàn thành:
 - Response lỗi/thành công được chuẩn hóa.
 - CORS allowlist, Helmet, rate limit đăng nhập và giới hạn JSON.
 - Timeout PostgreSQL và graceful shutdown.
-- Test tích hợp nền tảng.
+- Migration `001` cho schema nền, migration `002` cho auth/căn hộ và migration `003` cho billing.
+- Seed phát triển idempotent với admin, cư dân, tòa nhà, căn hộ và khoản phí mẫu.
+- Phase 3: khoản phí, hóa đơn, thanh toán, duyệt/từ chối, biên lai và công nợ.
+- 9 test tích hợp nền tảng và validation API.
 
-Các API nghiệp vụ còn lại sẽ được triển khai theo [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md). Client không nên tự suy đoán response cho các endpoint chưa có route thực tế.
+Phase 4–6 vẫn chưa triển khai. Client không nên tự suy đoán response cho các
+endpoint chưa có route thực tế; danh sách trong phần API chỉ là hợp đồng sau khi
+route tương ứng đã được triển khai.
 
 ## Yêu cầu môi trường
 
@@ -79,13 +85,26 @@ Không commit `.env`, mật khẩu database, JWT secret hoặc dữ liệu thậ
 
 ### 3. Khởi tạo database
 
-Tạo database `aoms`, sau đó chạy schema:
+Tạo database `aoms`, sau đó chạy migration và seed phát triển:
 
 ```powershell
-psql "$env:DATABASE_URL" -f schema.sql
+npm run db:setup
 ```
 
-Với Supabase, có thể mở SQL Editor và chạy nội dung [backend/schema.sql](./backend/schema.sql).
+Migration được lưu trong [database/migrations](./database/migrations) và có bảng
+`schema_migrations` để mỗi migration chỉ chạy một lần. Seed có thể chạy lặp lại
+an toàn và chỉ dùng dữ liệu mẫu, không dùng cho production.
+
+Tài khoản mẫu sau khi seed:
+
+```text
+admin@example.com
+resident@example.com
+```
+
+Mật khẩu mẫu chỉ dành cho môi trường phát triển và không được dùng khi deploy
+production. Với Supabase, có thể chạy lần lượt nội dung các file migration trong
+SQL Editor rồi chạy seed từ môi trường có `DATABASE_URL`.
 
 ### 4. Khởi động
 
@@ -300,7 +319,7 @@ POST   /api/can-ho/:id/cu-dan
 DELETE /api/can-ho/:id/cu-dan/:nguoiDungId
 ```
 
-### Phí, hóa đơn và thanh toán
+### Phí, hóa đơn và thanh toán — đã triển khai
 
 ```text
 GET   /api/khoan-phi
@@ -317,7 +336,31 @@ GET   /api/hoa-don/:id/bien-lai
 GET   /api/cong-no
 ```
 
+Quy trình Phase 3:
+
+1. `QUAN_LY` tạo khoản phí bằng `POST /api/khoan-phi`.
+2. `QUAN_LY` phát hành hóa đơn theo tháng bằng `POST /api/hoa-don/phat-hanh`.
+3. `CU_DAN` xem hóa đơn của căn hộ đang được gắn.
+4. `CU_DAN` tạo yêu cầu thanh toán; giao dịch bắt đầu ở trạng thái `CHO_DUYET`.
+5. `QUAN_LY` duyệt hoặc từ chối giao dịch.
+6. Khi duyệt, backend cập nhật hóa đơn và tạo biên lai trong cùng transaction.
+
+Body phát hành hóa đơn:
+
+```json
+{
+  "thang": "2026-11",
+  "hanNop": "2026-11-30",
+  "canHoId": 3
+}
+```
+
+`canHoId` là tùy chọn. Nếu bỏ qua, hệ thống phát hành cho các căn hộ có
+ít nhất một khoản phí. Mỗi căn hộ và tháng chỉ có một hóa đơn.
+
 ### Sự cố
+
+Các route dưới đây là mục tiêu, chưa triển khai:
 
 ```text
 POST  /api/su-co
@@ -330,6 +373,8 @@ POST  /api/su-co/:id/danh-gia
 ```
 
 ### Tiện ích, thông báo và báo cáo
+
+Các route dưới đây là mục tiêu, chưa triển khai:
 
 ```text
 GET    /api/tien-ich
